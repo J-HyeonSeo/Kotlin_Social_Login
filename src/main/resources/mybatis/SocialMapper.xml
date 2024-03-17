@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.social.mapper.SocialMapper">
+
+  <!-- 회원정보가 있는지 판별하는 SQL -->
+  <select id="existsByEmail" parameterType="String" resultType="Boolean">
+    SELECT CASE WHEN EXISTS (SELECT 1 FROM social.member WHERE email = #{email})
+        THEN true ELSE false END AS existsEmail;
+  </select>
+
+  <!-- 회원정보를 가져오는 SQL -->
+  <select id="selectMemberByEmail" parameterType="String" resultType="com.example.social.model.MemberDto">
+    SELECT id, email, nickname, profile_url as profileUrl
+    FROM social.member
+    WHERE email = #{email};
+  </select>
+
+  <!-- 회원정보를 등록하는 SQL -->
+  <select id="insertMember" parameterType="com.example.social.model.MemberResisterDto">
+    INSERT INTO social.member (email, password, nickname, profile_url)
+    VALUES(#{email}, #{password}, #{name}, ${profileUrl});
+  </select>
+
+  <!-- 회원정보를 수정하는 SQL -->
+  <select id="updateMember" parameterType="com.example.social.model.MemberUpdateDto">
+    UPDATE social.member
+    SET nickname=#{nickname}, profile_url=#{profileUrl}
+    WHERE email = #{email};
+  </select>
+
+</mapper>
