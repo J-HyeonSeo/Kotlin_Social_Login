@@ -17,8 +17,8 @@
 
   <!-- 회원정보를 등록하는 SQL -->
   <select id="insertMember" parameterType="com.example.social.model.MemberResisterDto">
-    INSERT INTO social.member (email, password, nickname, profile_url)
-    VALUES(#{email}, #{password}, #{name}, ${profileUrl});
+    INSERT INTO social.member (email, nickname, profile_url)
+    VALUES(#{email}, #{nickname}, #{profileUrl});
   </select>
 
   <!-- 회원정보를 수정하는 SQL -->

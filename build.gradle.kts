@@ -25,19 +25,33 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // Social Login
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    // For Web and Spring Project
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
-    implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+
+    // Logging
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
-    compileOnly("org.projectlombok:lombok")
+
+    // Access the Database
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
     runtimeOnly("com.mysql:mysql-connector-j")
+
+    // Generate json web token
+    implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+
+    // Auto created boilter plate code
+    compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
+
+    // Test Tools
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3")
     testImplementation("org.springframework.security:spring-security-test")

@@ -1,6 +1,9 @@
 package com.example.social.security.oauth2
 
+import com.example.social.mapper.SocialMapper
 import com.example.social.model.MemberDto
+import com.example.social.model.MemberResisterDto
+import com.example.social.model.MemberUpdateDto
 import com.example.social.security.TokenProvider
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletResponse
@@ -11,11 +14,13 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
+import java.lang.RuntimeException
 
 @Service
 class KakaoOauth2Service(
     val tokenProvider: TokenProvider,
     val httpServletResponse: HttpServletResponse,
+    val socialMapper: SocialMapper,
     val objectMapper: ObjectMapper
 ) : DefaultOAuth2UserService() {
 
@@ -27,17 +32,18 @@ class KakaoOauth2Service(
         val oAuth2User: OAuth2User =
             super.loadUser(userRequest) // Oauth2 정보를 가져옴
 
-        val accountInfo = oAuth2User.getAttribute<Map<String, Any>>("kakao_account")!!
+        val accountInfo = oAuth2User.getAttribute<Map<String, Any>>("kakao_account")
 
-        val email = accountInfo["email"] as String
-        val nickname = (accountInfo["profile"] as Map<*, *>?)!!["nickname"] as String
-        val profileUrl = (accountInfo["profile"] as Map<*, *>?)!!["profile_image_url"] as String
+        val email = accountInfo?.get("email") as? String ?: ""
+        val profileInfo = accountInfo?.get("profile") as? Map<*, *>
+        val nickname = profileInfo?.get("nickname") as? String ?: ""
+        val profileUrl = profileInfo?.get("profile_image_url") as? String ?: ""
 
         //DB에 데이터 저장 및 업데이트
         val member: MemberDto = saveOrUpdateMember(email, nickname, profileUrl)
 
         //JWT(AccessToken, RefreshToken) 발급해야함.
-        val token: String = tokenProvider.generateJwtToken(1L, listOf("ROLE_TEST"))
+        val token: String = tokenProvider.generateJwtToken(member.id, listOf("ROLE_TEST"))
         val tokenMap = HashMap<String, String>()
         tokenMap["token"] = token
 
@@ -65,8 +71,17 @@ class KakaoOauth2Service(
      */
     internal fun saveOrUpdateMember(email: String, nickname: String, profileUrl: String): MemberDto {
 
-        return MemberDto(0, "test", "test", "test")
+        if (email.isEmpty() || nickname.isEmpty() || profileUrl.isEmpty()) {
+            throw RuntimeException("Oauth2 Response is Empty!!")
+        }
 
+        //이미 회원가입한 이력이 있는 경우!
+        if (socialMapper.existsByEmail(email)) {
+            socialMapper.updateMember(MemberUpdateDto(email, nickname, profileUrl))
+        } else {
+            socialMapper.insertMember(MemberResisterDto(email, nickname, profileUrl))
+        }
+        return socialMapper.selectMemberByEmail(email)
     }
 
 }

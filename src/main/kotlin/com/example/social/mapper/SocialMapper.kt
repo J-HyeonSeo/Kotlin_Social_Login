@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Param
 @Mapper
 interface SocialMapper {
 
-    fun existsByEmail(@Param("email") email: String)
+    fun existsByEmail(@Param("email") email: String): Boolean
     fun selectMemberByEmail(@Param("email") email: String): MemberDto
     fun insertMember(registerDto: MemberResisterDto)
     fun updateMember(updateDto: MemberUpdateDto)
