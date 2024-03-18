@@ -30,7 +30,7 @@ class SecurityConfig (
         .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
         .authorizeHttpRequests { it.anyRequest().permitAll() }
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
-        .oauth2Login {it.userInfoEndpoint {it.userService(kakaoOauth2Service)}}
+        .oauth2Login { it -> it.userInfoEndpoint {it.userService(kakaoOauth2Service)}}
         .build()
 
     @Bean

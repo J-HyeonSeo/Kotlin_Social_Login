@@ -1,8 +1,23 @@
 import {Fragment} from "react";
+import {useNavigate} from "react-router-dom";
 
 const LoginProcessPage = () => {
 
-  console.log(window.location.pathname + window.location.search);
+  let navigate = useNavigate();
+
+  fetch("http://localhost:8080" + window.location.pathname + window.location.search, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include'
+  })
+  .then(res => {
+    res.json().then(json => {
+      console.log(json);
+      navigate("/");
+    })
+  }).catch(e => {
+    console.log(e);
+  });
 
   return (
       <Fragment></Fragment>
