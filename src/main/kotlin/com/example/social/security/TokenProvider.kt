@@ -66,7 +66,7 @@ class TokenProvider {
             .collect(Collectors.toList())
     }
 
-    internal fun getMemberId(token: String): Long = parseClaims(token).get(this.memberIdHeader, Long::class.java)
+    internal fun getMemberId(token: String): Any = parseClaims(token).get(this.memberIdHeader, Any::class.java)
 
     internal fun validateToken(token: String): Boolean {
         if (StringUtils.isEmpty(token)) return false

@@ -28,6 +28,9 @@ class JwtFilter(val tokenProvider: TokenProvider) : OncePerRequestFilter() {
         if (StringUtils.hasText(token) && tokenProvider.validateToken(token!!)) {
             val authentication: Authentication = tokenProvider.getAuthentication(token)
             SecurityContextHolder.getContext().authentication = authentication
+        } else {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
 
         filterChain.doFilter(request, response)

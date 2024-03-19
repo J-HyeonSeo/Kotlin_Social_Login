@@ -11,6 +11,7 @@ interface SocialMapper {
 
     fun existsByEmail(@Param("email") email: String): Boolean
     fun selectMemberByEmail(@Param("email") email: String): MemberDto
+    fun selectMemberById(@Param("id") id: Long): MemberDto
     fun insertMember(registerDto: MemberResisterDto)
     fun updateMember(updateDto: MemberUpdateDto)
 

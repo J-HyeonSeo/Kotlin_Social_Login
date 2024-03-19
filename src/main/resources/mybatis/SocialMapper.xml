@@ -8,11 +8,18 @@
         THEN true ELSE false END AS existsEmail;
   </select>
 
-  <!-- 회원정보를 가져오는 SQL -->
+  <!-- 회원정보를 가져오는 SQL By Email-->
   <select id="selectMemberByEmail" parameterType="String" resultType="com.example.social.model.MemberDto">
     SELECT id, email, nickname, profile_url as profileUrl
     FROM social.member
     WHERE email = #{email};
+  </select>
+
+  <!-- 회원정보를 가져오는 SQL By Id-->
+  <select id="selectMemberById" parameterType="Long" resultType="com.example.social.model.MemberDto">
+    SELECT id, email, nickname, profile_url as profileUrl
+    FROM social.member
+    WHERE id = #{id};
   </select>
 
   <!-- 회원정보를 등록하는 SQL -->
