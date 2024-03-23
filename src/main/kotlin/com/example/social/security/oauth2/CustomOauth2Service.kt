@@ -4,43 +4,39 @@ import com.example.social.mapper.SocialMapper
 import com.example.social.model.MemberDto
 import com.example.social.model.MemberResisterDto
 import com.example.social.model.MemberUpdateDto
+import com.example.social.model.Oauth2Attributes
 import com.example.social.security.TokenProvider
+import com.example.social.security.oauth2.attributes.Oauth2AttributesFactory
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletResponse
 import mu.KotlinLogging
 import org.springframework.http.MediaType
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
 import java.lang.RuntimeException
 
 @Service
-class KakaoOauth2Service(
+class CustomOauth2Service(
     val tokenProvider: TokenProvider,
     val httpServletResponse: HttpServletResponse,
     val socialMapper: SocialMapper,
-    val objectMapper: ObjectMapper
+    val objectMapper: ObjectMapper,
+    val oauth2AttributesFactory: Oauth2AttributesFactory
 ) : DefaultOAuth2UserService() {
 
     override fun loadUser(userRequest: OAuth2UserRequest?): OAuth2User {
         val logger = KotlinLogging.logger{}
 
-        val userNameAttributeName = userRequest!!.clientRegistration.providerDetails
-            .userInfoEndpoint.userNameAttributeName
         val oAuth2User: OAuth2User =
             super.loadUser(userRequest) // Oauth2 정보를 가져옴
 
-        val accountInfo = oAuth2User.getAttribute<Map<String, Any>>("kakao_account")
-
-        val email = accountInfo?.get("email") as? String ?: ""
-        val profileInfo = accountInfo?.get("profile") as? Map<*, *>
-        val nickname = profileInfo?.get("nickname") as? String ?: ""
-        val profileUrl = profileInfo?.get("profile_image_url") as? String ?: ""
+        val clientName = userRequest?.clientRegistration?.clientName ?: ""
+        val oauth2Attributes = oauth2AttributesFactory.getOauth2AttributesManager(clientName).getAttributes(oAuth2User)
 
         //DB에 데이터 저장 및 업데이트
-        val member: MemberDto = saveOrUpdateMember(email, nickname, profileUrl)
+        val member: MemberDto = saveOrUpdateMember(oauth2Attributes)
 
         //JWT(AccessToken, RefreshToken) 발급해야함.
         val token: String = tokenProvider.generateJwtToken(member.id, listOf("ROLE_TEST"))
@@ -60,16 +56,17 @@ class KakaoOauth2Service(
             logger.info("Token 응답 쓰기 오류 발생!")
         }
 
-        return DefaultOAuth2User(null,
-            oAuth2User.attributes,
-            userNameAttributeName
-        );
+        return oAuth2User
     }
 
     /**
      * 해당 Member가 이미 존재하면, Update, 새로운 Member이면, 새롭게 DB에 데이터를 Insert하는 메서드.
      */
-    internal fun saveOrUpdateMember(email: String, nickname: String, profileUrl: String): MemberDto {
+    internal fun saveOrUpdateMember(oauth2Attributes: Oauth2Attributes): MemberDto {
+
+        val email = oauth2Attributes.email
+        val nickname = oauth2Attributes.nickname
+        val profileUrl = oauth2Attributes.profileUrl
 
         if (email.isEmpty() || nickname.isEmpty() || profileUrl.isEmpty()) {
             throw RuntimeException("Oauth2 Response is Empty!!")

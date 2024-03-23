@@ -1,6 +1,6 @@
 package com.example.social.security
 
-import com.example.social.security.oauth2.KakaoOauth2Service
+import com.example.social.security.oauth2.CustomOauth2Service
 import lombok.RequiredArgsConstructor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -19,7 +19,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @RequiredArgsConstructor
 class SecurityConfig (
     val jwtFilter: JwtFilter,
-    val kakaoOauth2Service: KakaoOauth2Service
+    val customOauth2Service: CustomOauth2Service
 ) {
 
     @Bean
@@ -30,7 +30,7 @@ class SecurityConfig (
         .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
         .authorizeHttpRequests { it.anyRequest().permitAll() }
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
-        .oauth2Login { it -> it.userInfoEndpoint {it.userService(kakaoOauth2Service)}}
+        .oauth2Login { it -> it.userInfoEndpoint {it.userService(customOauth2Service)}}
         .build()
 
     @Bean
