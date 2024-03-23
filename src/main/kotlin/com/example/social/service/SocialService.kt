@@ -8,9 +8,5 @@ import org.springframework.stereotype.Service
 @Service
 @RequiredArgsConstructor
 class SocialService(val socialMapper: SocialMapper) {
-
-    fun getMemberInfo(id: Long): MemberDto {
-        return socialMapper.selectMemberById(id)
-    }
-
+    fun getMemberInfo(id: Long): MemberDto = socialMapper.selectMemberById(id)
 }

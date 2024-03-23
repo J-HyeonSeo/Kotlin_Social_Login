@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component
 @Component
 class KakaoOauth2Attributes: Oauth2AttributesManager {
     override fun getAttributes(oAuth2User: OAuth2User): Oauth2Attributes {
-        val accountInfo = oAuth2User.getAttribute<Map<String, Any>>("kakao_account")
-        val email = accountInfo?.get("email") as? String ?: ""
-        val profileInfo = accountInfo?.get("profile") as? Map<*, *>
-        val nickname = profileInfo?.get("nickname") as? String ?: ""
-        val profileUrl = profileInfo?.get("profile_image_url") as? String ?: ""
+        val socialId = oAuth2User.attributes["id"] as? Long ?: ""
 
-        return Oauth2Attributes(email, nickname, profileUrl)
+        val properties = oAuth2User.attributes["properties"] as Map<*, *>
+        val nickname = properties["nickname"] as? String ?: ""
+        val profileUrl = properties["profile_image"] as? String ?: ""
+
+        return Oauth2Attributes(socialId.toString(), nickname, profileUrl)
     }
 
 }

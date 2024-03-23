@@ -5,6 +5,8 @@ const LoginProcessPage = () => {
 
   let navigate = useNavigate();
 
+  console.log(window.location.pathname + window.location.search);
+
   fetch("http://localhost:8080" + window.location.pathname + window.location.search, {
     method: "POST",
     headers: { 'Content-Type': 'application/json' },

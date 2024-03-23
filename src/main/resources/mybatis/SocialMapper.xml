@@ -3,36 +3,36 @@
 <mapper namespace="com.example.social.mapper.SocialMapper">
 
   <!-- 회원정보가 있는지 판별하는 SQL -->
-  <select id="existsByEmail" parameterType="String" resultType="Boolean">
-    SELECT CASE WHEN EXISTS (SELECT 1 FROM social.member WHERE email = #{email})
-        THEN true ELSE false END AS existsEmail;
+  <select id="existsBySocialId" parameterType="String" resultType="Boolean">
+    SELECT CASE WHEN EXISTS (SELECT 1 FROM social.member WHERE social_id = #{socialId})
+        THEN true ELSE false END AS existsMember;
   </select>
 
-  <!-- 회원정보를 가져오는 SQL By Email-->
-  <select id="selectMemberByEmail" parameterType="String" resultType="com.example.social.model.MemberDto">
-    SELECT id, email, nickname, profile_url as profileUrl
+  <!-- 회원정보를 가져오는 SQL By socialId-->
+  <select id="selectMemberBySocialId" parameterType="String" resultType="com.example.social.model.MemberDto">
+    SELECT id, social_id as socialId, nickname, profile_url as profileUrl
     FROM social.member
-    WHERE email = #{email};
+    WHERE social_id = #{socialId};
   </select>
 
   <!-- 회원정보를 가져오는 SQL By Id-->
   <select id="selectMemberById" parameterType="Long" resultType="com.example.social.model.MemberDto">
-    SELECT id, email, nickname, profile_url as profileUrl
+    SELECT id, social_id as socialId, nickname, profile_url as profileUrl
     FROM social.member
     WHERE id = #{id};
   </select>
 
   <!-- 회원정보를 등록하는 SQL -->
   <select id="insertMember" parameterType="com.example.social.model.MemberResisterDto">
-    INSERT INTO social.member (email, nickname, profile_url)
-    VALUES(#{email}, #{nickname}, #{profileUrl});
+    INSERT INTO social.member (social_id, nickname, profile_url)
+    VALUES(#{socialId}, #{nickname}, #{profileUrl});
   </select>
 
   <!-- 회원정보를 수정하는 SQL -->
   <select id="updateMember" parameterType="com.example.social.model.MemberUpdateDto">
     UPDATE social.member
     SET nickname=#{nickname}, profile_url=#{profileUrl}
-    WHERE email = #{email};
+    WHERE social_id = #{socialId};
   </select>
 
 </mapper>

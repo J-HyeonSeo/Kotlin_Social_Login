@@ -9,13 +9,11 @@ import com.example.social.security.TokenProvider
 import com.example.social.security.oauth2.attributes.Oauth2AttributesFactory
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletResponse
-import mu.KotlinLogging
 import org.springframework.http.MediaType
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
-import java.lang.RuntimeException
 
 @Service
 class CustomOauth2Service(
@@ -27,7 +25,6 @@ class CustomOauth2Service(
 ) : DefaultOAuth2UserService() {
 
     override fun loadUser(userRequest: OAuth2UserRequest?): OAuth2User {
-        val logger = KotlinLogging.logger{}
 
         val oAuth2User: OAuth2User =
             super.loadUser(userRequest) // Oauth2 정보를 가져옴
@@ -53,7 +50,7 @@ class CustomOauth2Service(
                 )
             }
         } catch (e: Exception) {
-            logger.info("Token 응답 쓰기 오류 발생!")
+            throw RuntimeException("Something went wrong during write Json Web Token to HttpResponse")
         }
 
         return oAuth2User
@@ -64,21 +61,21 @@ class CustomOauth2Service(
      */
     internal fun saveOrUpdateMember(oauth2Attributes: Oauth2Attributes): MemberDto {
 
-        val email = oauth2Attributes.email
+        val socialId = oauth2Attributes.socialId
         val nickname = oauth2Attributes.nickname
         val profileUrl = oauth2Attributes.profileUrl
 
-        if (email.isEmpty() || nickname.isEmpty() || profileUrl.isEmpty()) {
-            throw RuntimeException("Oauth2 Response is Empty!!")
+        if (socialId.isEmpty() || nickname.isEmpty() || profileUrl.isEmpty()) {
+            throw RuntimeException("They're not have attributes data")
         }
 
         //이미 회원가입한 이력이 있는 경우!
-        if (socialMapper.existsByEmail(email)) {
-            socialMapper.updateMember(MemberUpdateDto(email, nickname, profileUrl))
+        if (socialMapper.existsBySocialId(socialId)) {
+            socialMapper.updateMember(MemberUpdateDto(socialId, nickname, profileUrl))
         } else {
-            socialMapper.insertMember(MemberResisterDto(email, nickname, profileUrl))
+            socialMapper.insertMember(MemberResisterDto(socialId, nickname, profileUrl))
         }
-        return socialMapper.selectMemberByEmail(email)
+        return socialMapper.selectMemberBySocialId(socialId)
     }
 
 }
